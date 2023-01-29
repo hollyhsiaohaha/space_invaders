@@ -1,6 +1,7 @@
 # Space Invaders
-![work?](demo_video.mov)
 
-<video width="320" height="240" controls>
-  <source src="demo_video.mov" type="video/mp4">
-</video>
+從小就很喜歡打電動，,也曾經幻想著要是有機會可以製作出自己的遊戲就好了。  
+在學會了程式以後，拜強大的第三方套件與網路資源所賜，終於有機會可以圓夢了！
+
+![demo](demo/demo.gif)
+
