@@ -60,9 +60,7 @@ pygame.mixer.music.set_volume(0.3)
 # load font
 font_name = os.path.join("font.ttf")
 def draw_text(surf, text, size, x, y):
-    # pygame.font.init()
     font = pygame.font.Font(font_name, size)
-    # font = pygame.font.SysFont("arial", size)
     text_surface = font.render(text, True, WHITE)
     text_rect = text_surface.get_rect()
     text_rect.centerx = x
@@ -77,13 +75,13 @@ def new_rock():
 def draw_health(surf, hp, x, y):
     if hp < 0:
         hp = 0
-    BAR_LENTH = 100
+    BAR_LENGTH = 100
     BAR_HEIGHT = 10
-    fill = (hp/100)*BAR_LENTH
-    outline_rect = pygame.Rect(x, y, BAR_LENTH, BAR_HEIGHT)
+    fill = (hp/100)*BAR_LENGTH
+    outline_rect = pygame.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
     fill_rect = pygame.Rect(x, y, fill, BAR_HEIGHT)
-    pygame.draw.rect(surf, WHITE, outline_rect, 2)
     pygame.draw.rect(surf, GREEN, fill_rect)
+    pygame.draw.rect(surf, WHITE, outline_rect, 2)
 
 def draw_lives(surf, lives, img, x, y):
     for i in range(lives):
@@ -95,7 +93,7 @@ def draw_lives(surf, lives, img, x, y):
 def draw_init():
     screen.blit(background_img, (0, 0))
     draw_text(screen, "Sky Invader", 64, WIDTH/2, HEIGHT/4)
-    draw_text(screen, " ← → to move spaceship, spce to shoot", 22, WIDTH/2, HEIGHT/2)
+    draw_text(screen, "Press A D to move spaceship, spce to shoot", 22, WIDTH/2, HEIGHT/2)
     draw_text(screen, "press any key to start", 18, WIDTH/2, HEIGHT*3/4)
     pygame.display.update()
     waiting = True
@@ -104,8 +102,10 @@ def draw_init():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                return True
             elif event.type == pygame.KEYUP:
                 waiting = False
+                return False
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -131,22 +131,22 @@ class Player(pygame.sprite.Sprite):
             self.gun -= 1
             self.gun_time = now
 
-        if self.hidden and pygame.time.get_ticks() - self.hide_time > 1000:
+        if self.hidden and now - self.hide_time > 1000:
             self.hidden = False
             self.rect.centerx = WIDTH / 2
             self.rect.bottom = HEIGHT - 10
 
         key_pressed = pygame.key.get_pressed()
         if key_pressed[pygame.K_d]:
-            self.rect.x += 2
+            self.rect.x += self.speedx
         if key_pressed[pygame.K_a]:
-            self.rect.x -= 2
+            self.rect.x -= self.speedx
 
         if self.rect.right > WIDTH:
             self.rect.right = WIDTH
         if self.rect.left < 0:
             self.rect.left = 0
-    
+
     def shoot(self):
         if not(self.hidden):
             if self.gun == 1:
@@ -261,25 +261,27 @@ class Power(pygame.sprite.Sprite):
         if self.rect.top > HEIGHT:
             self.kill()        
         
-all_sprites = pygame.sprite.Group()
-rocks = pygame.sprite.Group()
-bullets = pygame.sprite.Group()
-powers = pygame.sprite.Group()
-player = Player()
-all_sprites.add(player)
-for i in range(8):
-    new_rock()
-score = 0
+# all_sprites = pygame.sprite.Group()
+# rocks = pygame.sprite.Group()
+# bullets = pygame.sprite.Group()
+# powers = pygame.sprite.Group()
+# player = Player()
+# all_sprites.add(player)
+# for i in range(8):
+#     new_rock()
+# score = 0
 pygame.mixer.music.play(-1)
 
 # main loop
-show_init = False
-# show_init = True # TODO: uncomment after fixing font bug  
+show_init = True
 running = True
 while running:
     if show_init:
-        # draw_init() # TODO: uncomment after fixing font bug  
+        close = draw_init()
+        if close:
+            break
         show_init = False
+        all_sprites = pygame.sprite.Group()
         rocks = pygame.sprite.Group()
         bullets = pygame.sprite.Group()
         powers = pygame.sprite.Group()
@@ -347,8 +349,7 @@ while running:
     screen.fill(BLACK)
     screen.blit(background_img, (0, 0))
     all_sprites.draw(screen)
-    # TODO: font module can not work
-    # draw_text(screen, str(score), 18, WIDTH/2, 10)
+    draw_text(screen, str(score), 18, WIDTH/2, 10)
     draw_health(screen, player.health, 5, 15)
     draw_lives(screen, player.lives, player_mini_img, WIDTH - 100, 15 )
     pygame.display.update()
